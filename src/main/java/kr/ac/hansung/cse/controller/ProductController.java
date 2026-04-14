@@ -1,17 +1,24 @@
 package kr.ac.hansung.cse.controller;
 
+import java.util.List;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
 import jakarta.validation.Valid;
 import kr.ac.hansung.cse.exception.ProductNotFoundException;
 import kr.ac.hansung.cse.model.Product;
 import kr.ac.hansung.cse.model.ProductForm;
+import kr.ac.hansung.cse.service.CategoryService;
 import kr.ac.hansung.cse.service.ProductService;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import java.util.List;
 
 /**
  * =====================================================================
@@ -37,9 +44,12 @@ import java.util.List;
 public class ProductController {
 
     private final ProductService productService;
+    private final CategoryService categoryService;
 
-    public ProductController(ProductService productService) {
+    public ProductController(ProductService productService,
+                             CategoryService categoryService) {
         this.productService = productService;
+        this.categoryService = categoryService;
     }
 
 
@@ -48,9 +58,27 @@ public class ProductController {
     // ─────────────────────────────────────────────────────────────────
 
     @GetMapping
-    public String listProducts(Model model) {
-        List<Product> products = productService.getAllProducts();
+    public String listProducts(@RequestParam(required = false) String keyword,
+                               @RequestParam(required = false) Long categoryId,
+                               Model model) {
+        List<Product> products;
+
+        // 검색어가 있으면 상품명 LIKE 검색을 수행한 기능을 위해 추가했습니다.
+        if (keyword != null && !keyword.isBlank()) {
+            products = productService.searchByName(keyword);
+        } else if (categoryId != null) {
+            // 카테고리 선택값이 있으면 카테고리 기준 필터링을 수행한 기능을 위해 추가했습니다.
+            products = productService.searchByCategory(categoryId);
+        } else {
+            products = productService.getAllProducts();
+        }
+
         model.addAttribute("products", products);
+        // 검색 드롭다운 구성을 위해 카테고리 목록을 함께 전달한 기능을 위해 추가했습니다.
+        model.addAttribute("categories", categoryService.getAllCategories());
+        // 검색 조건 유지(재표시)를 위해 요청 파라미터를 모델에 저장한 기능을 위해 추가했습니다.
+        model.addAttribute("keyword", keyword);
+        model.addAttribute("categoryId", categoryId);
         return "productList";
     }
 
