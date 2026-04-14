@@ -29,7 +29,7 @@ public class CategoryRepository {
                 .getResultList();
     }
 
-    // 카테고리 이름으로 기존 데이터를 조회한 기능을 위해 추가했습니다.
+    // 이름으로 카테고리 조회 (폼에서 선택한 카테고리명 → Category 엔티티 변환 시 사용)
     public Optional<Category> findByName(String name) {
         List<Category> result = em.createQuery(
                         "SELECT c FROM Category c WHERE c.name = :name", Category.class)
@@ -38,7 +38,7 @@ public class CategoryRepository {
         return result.isEmpty() ? Optional.empty() : Optional.of(result.get(0));
     }
 
-    // 카테고리와 상품 목록을 한 번에 조회해 화면 처리 성능을 높인 기능을 위해 추가했습니다.
+    // JOIN FETCH: N+1 문제 방지 (Category + Products 한 번에 로드)
     public Optional<Category> findByIdWithProducts(Long id) {
         List<Category> result = em.createQuery(
                         "SELECT DISTINCT c FROM Category c JOIN FETCH c.products WHERE c.id = :id",
