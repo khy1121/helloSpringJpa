@@ -1,14 +1,15 @@
 package kr.ac.hansung.cse.service;
 
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import kr.ac.hansung.cse.model.Category;
 import kr.ac.hansung.cse.model.Product;
 import kr.ac.hansung.cse.repository.CategoryRepository;
 import kr.ac.hansung.cse.repository.ProductRepository;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.Optional;
 
 /**
  * =====================================================================
@@ -77,6 +78,16 @@ public class ProductService {
      */
     public List<Product> getAllProducts() {
         return productRepository.findAll();
+    }
+
+    // 상품명 키워드로 검색한 기능을 위해 추가했습니다.
+    public List<Product> searchByName(String keyword) {
+        return productRepository.findByNameContaining(keyword);
+    }
+
+    // 카테고리 기준으로 상품을 필터링한 기능을 위해 추가했습니다.
+    public List<Product> searchByCategory(Long categoryId) {
+        return productRepository.findByCategoryId(categoryId);
     }
 
     /**
