@@ -1,12 +1,13 @@
 package kr.ac.hansung.cse.repository;
 
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.stereotype.Repository;
+
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import kr.ac.hansung.cse.model.Category;
-import org.springframework.stereotype.Repository;
-
-import java.util.List;
-import java.util.Optional;
 
 @Repository
 public class CategoryRepository {
@@ -28,7 +29,7 @@ public class CategoryRepository {
                 .getResultList();
     }
 
-    // 이름으로 카테고리 조회 (폼에서 선택한 카테고리명 → Category 엔티티 변환 시 사용)
+    // 카테고리 이름으로 기존 데이터를 조회한 기능을 위해 추가했습니다.
     public Optional<Category> findByName(String name) {
         List<Category> result = em.createQuery(
                         "SELECT c FROM Category c WHERE c.name = :name", Category.class)
@@ -37,7 +38,7 @@ public class CategoryRepository {
         return result.isEmpty() ? Optional.empty() : Optional.of(result.get(0));
     }
 
-    // JOIN FETCH: N+1 문제 방지 (Category + Products 한 번에 로드)
+    // 카테고리와 상품 목록을 한 번에 조회해 화면 처리 성능을 높인 기능을 위해 추가했습니다.
     public Optional<Category> findByIdWithProducts(Long id) {
         List<Category> result = em.createQuery(
                         "SELECT DISTINCT c FROM Category c JOIN FETCH c.products WHERE c.id = :id",
@@ -45,6 +46,23 @@ public class CategoryRepository {
                 .setParameter("id", id)
                 .getResultList();
         return result.isEmpty() ? Optional.empty() : Optional.of(result.get(0));
+    }
+
+    // 삭제 전에 연결된 상품 수를 확인한 기능을 위해 추가했습니다.
+    public long countProductsByCategoryId(Long categoryId) {
+        return em.createQuery(
+                        "SELECT COUNT(p) FROM Product p WHERE p.category.id = :id",
+                        Long.class)
+                .setParameter("id", categoryId)
+                .getSingleResult();
+    }
+
+    // 카테고리 엔티티를 조회한 뒤 실제 삭제를 수행한 기능을 위해 추가했습니다.
+    public void delete(Long id) {
+        Category category = em.find(Category.class, id);
+        if (category != null) {
+            em.remove(category);
+        }
     }
 }
 
