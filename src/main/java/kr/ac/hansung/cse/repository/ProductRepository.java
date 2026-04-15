@@ -136,7 +136,7 @@ public class ProductRepository {
     // 카테고리 ID로 해당 상품들만 조회한 기능을 위해 추가했습니다.
     public List<Product> findByCategoryId(Long categoryId) {
         return entityManager.createQuery(
-                        "SELECT p FROM Product p WHERE p.category.id = :cid",
+                        "SELECT p FROM Product p LEFT JOIN FETCH p.category WHERE p.category.id = :cid ORDER BY p.id ASC",
                         Product.class)
                 .setParameter("cid", categoryId)
                 .getResultList();
@@ -147,7 +147,7 @@ public class ProductRepository {
         // 검색어의 앞뒤 공백 제거와 null 방어를 위한 기능을 위해 추가했습니다.
         String normalizedKeyword = keyword == null ? "" : keyword.trim();
         return entityManager.createQuery(
-                        "SELECT p FROM Product p WHERE p.name LIKE :keyword",
+                        "SELECT p FROM Product p LEFT JOIN FETCH p.category WHERE p.name LIKE :keyword ORDER BY p.id ASC",
                         Product.class)
                 .setParameter("keyword", "%" + normalizedKeyword + "%")
                 .getResultList();
