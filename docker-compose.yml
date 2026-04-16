@@ -95,6 +95,8 @@ services:
 
     environment:
       # Java 옵션: 메모리, 인코딩 설정
+      # DB_HOST는 DbConfig.java에서 읽어 JDBC 접속 대상을 결정합니다.
+      DB_HOST: mysql
       JAVA_OPTS: >-
         -Xmx512m
         -Xms256m

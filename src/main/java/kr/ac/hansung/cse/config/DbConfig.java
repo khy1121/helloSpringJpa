@@ -1,6 +1,9 @@
 package kr.ac.hansung.cse.config;
 
-import jakarta.persistence.EntityManagerFactory;
+import java.util.Properties;
+
+import javax.sql.DataSource;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -11,8 +14,7 @@ import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
-import javax.sql.DataSource;
-import java.util.Properties;
+import jakarta.persistence.EntityManagerFactory;
 
 /**
  * 데이터베이스 및 JPA 설정
@@ -39,7 +41,11 @@ public class DbConfig {
     public DataSource dataSource() {
         DriverManagerDataSource ds = new DriverManagerDataSource();
         ds.setDriverClassName("com.mysql.cj.jdbc.Driver");
-        ds.setUrl("jdbc:mysql://mysql:3306/productdb" +
+        String dbHost = System.getenv("DB_HOST") != null
+            ? System.getenv("DB_HOST")
+            : "localhost";
+
+        ds.setUrl("jdbc:mysql://" + dbHost + ":3306/productdb" +
                   "?useSSL=false" +
                   "&allowPublicKeyRetrieval=true" +
                   "&serverTimezone=Asia/Seoul" +
