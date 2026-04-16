@@ -65,9 +65,10 @@
     </form>
 
     <a class="btn" th:href="@{/products/create}">+ 새 상품 등록</a>
+    <a class="btn" th:href="@{/categories/create}">새 카테고리 등록</a>
 
-    <!-- 결과 없음: #lists.isEmpty()로 빈 리스트 감지 -->
-    <p th:if="${#lists.isEmpty(products)}">검색 결과가 없습니다.</p>
+    <!-- 결과 없음: 검색 조건이 있을 때만 검색 결과 안내를 표시 -->
+    <p th:if="${#lists.isEmpty(products) and ((keyword != null and !keyword.isBlank()) or categoryId != null)}">검색 결과가 없습니다.</p>
 
     <div class="empty-msg" th:if="${#lists.isEmpty(products) and (keyword == null or keyword.isBlank()) and categoryId == null}">
         등록된 상품이 없습니다. 새 상품을 등록해 주세요.
@@ -141,10 +142,10 @@
     </table>
 
  
-</body>
-   <footer>
+    <footer>
     <p th:text="${'실습 수행 일시: ' + #temporals.format(#temporals.createNow(), 'yyyy-MM-dd HH:mm:ss') + ' | 학번: 2171396 | 성명: 김헌영'}">
         2171396 | 김헌영
     </p>
 </footer>
+</body>
 </html>
